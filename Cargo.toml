@@ -1,0 +1,16 @@
+[package]
+name = "sloc"
+version = "0.0.1"
+authors = ["www.github.com/hejack0207"]
+repository = "https://github.com/hejack0207/sloc"
+keywords = ["source", "line","count"]
+categories = ["command-line-utilities"]
+license = "MIT"
+readme = "README.md"
+description = "source lines of count"
+
+[dependencies]
+clap = "2.20.5"
+num-format = "0.4.0"
+serde = "*"
+toml = "*"

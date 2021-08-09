@@ -1,0 +1,47 @@
+language: rust
+
+os:
+  - linux
+  - osx
+
+env:
+- ARCH=i686
+- ARCH=x86_64
+
+rust: stable
+
+before_install:
+- if [[ $TRAVIS_OS_NAME == "linux" ]]; then sudo apt-get -qq update; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "i686"   ]]; then sudo apt-get install -y gcc-multilib g++-multilib; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "x86_64" ]]; then sudo apt-get install -y gcc-multilib g++-multilib; fi
+
+before_script:
+- curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain beta
+- export PATH=~/.cargo/bin:$PATH
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "x86_64" ]]; then rustup target add x86_64-unknown-linux-musl; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "i686"   ]]; then rustup target add i686-unknown-linux-gnu; fi
+- if [[ $TRAVIS_OS_NAME == "osx"   && $ARCH == "i686"   ]]; then rustup target add i686-apple-darwin; fi
+- which cargo
+- which rustc
+- cargo --version
+- rustc --version
+
+script:
+- if [[ $TRAVIS_OS_NAME == "osx"   && $ARCH == "x86_64" ]]; then make test; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "x86_64" ]]; then make test; fi
+- if [[ $TRAVIS_OS_NAME == "osx"   && $ARCH == "i686"   ]]; then make release_osx32; fi
+- if [[ $TRAVIS_OS_NAME == "osx"   && $ARCH == "x86_64" ]]; then make release_osx64; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "i686"   ]]; then make release_lnx32; fi
+- if [[ $TRAVIS_OS_NAME == "linux" && $ARCH == "x86_64" ]]; then make release_lnx64; fi
+
+deploy:
+  provider: releases
+  api_key:
+    secure: s5+CiyxfZQn42/e3QpsnZugg5CR+hmtS6Bv92JqFDfmlYep6DIZmCmZ4S5RqVKplB0NyF5zj3XWSyOhlHRYjoVctwZa4YNqUgSo2fQh1U+hPawNcsq3Bv84rnYnNDQMKQXjfBzb/8UL3WI+deN96FAfOeSMNwkfmexvm3XFq4uQirQBjy2CW1AF8R7ZWKsuH62j5nLWRYveVXhqc+Ao45SUp+XZN36ioNnJq7BdeneVAIjWHtEzJVXt+Z4yGQvRjGeZWMteSv+1cgzb6hje2qeYxlu4efr9gV/nUlpLe9DTFBttoLsrgyJclCjaOjcvsKw87inbNwuPsA4eK6oaBlJ/cMU0UI0v8kZ3JxGY7VD0iCKWD8V1HjesznUfdrgyvWkHtQUNkd4JC04LLsXpJpv9iBQBwSFzSlC5Z3YoV+TEiyWE4e2MZfwEgYHCmyK7Q+3NXKKkgiZ6T06mchFWnym/I0sP+A/egfdxpggdkbdgv9zs8EB95ecATLyn7LhrH3yzQ3kB6IGX584TbQAS9rLvm4quyU9BSuBH0c0N7CwTS2b+PQsH8dHiphbOFZtoqUIh9Y83RNqNBbqbfe5coc1oRZM7SRxlS1VIc0Ml93n50eZDO8QivqJnYFjJHDkOPsphyj47lOQPnRlrr3GXQvsR0ZoGr5tO88FTgjZDVjsU=
+  file:
+    - sloc-*.zip
+  file_glob: true
+  skip_cleanup: true
+  on:
+    repo: hejack0207/sloc
+    tags: true
