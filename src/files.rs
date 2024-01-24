@@ -28,7 +28,7 @@ pub fn read_file(file_name: &str) -> Option<String> {
     }
 }
 
-static EXTS: &'static [&'static str] = &[".rs", "hs",
+pub static EXTS: &'static [&'static str] = &[".rs", "hs",
                                              ".go", ".rb", ".rbw",
                                              ".java", ".scala", ".clj",
                                              ".js", ".cljs",
@@ -55,9 +55,3 @@ fn get_path(pb: PathBuf) -> String {
         None    => ""
     }.to_string()
 }
-
-#[test]
-fn ext_length(){
-    assert_eq!(42,EXTS.len());
-}
-
