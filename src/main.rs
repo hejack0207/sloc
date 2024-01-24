@@ -3,13 +3,14 @@ use clap::{Arg,App};
 extern crate num_format;
 use num_format::{Locale, ToFormattedString};
 
-mod files;
-mod counting;
+extern crate sloc;
+// mod files;
+// mod counting;
 
 use std::cmp;
 
-use files::get_files;
-use counting::{Stats, Counter, get_counters, get_stats};
+use sloc::files::get_files;
+use sloc::counting::{Stats, Counter, get_counters, get_stats};
 
 fn main() {
     println!("Source lines of code program...");
@@ -38,8 +39,8 @@ fn main() {
              .index(1))
         .get_matches();
 
-    let onlysummary = matches.is_present("summary"); //matches.value_of("summary").unwrap_or(false);
-    println!("summary flag:{}",onlysummary);
+    let onlysummary = matches.is_present("summary");
+    // println!("summary flag:{}",onlysummary);
     let mut directory = ".";
     if let Some(ref dir) = matches.value_of("directory") {
         directory = dir;
