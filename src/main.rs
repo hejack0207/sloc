@@ -76,14 +76,14 @@ fn show_counters(counters: &Vec<Counter>, num: usize) {
     let len = counters.len();
 
     // let max = if len < num { len } else { num };
-    let max = cmp::max(len, num);
+    let min = cmp::min(len, num);
 
-    if max > 0 {
-        println!("{} biggest files:", max);
+    if min > 0 {
+        println!("{} biggest files:", min);
     }
 
     let mut i = 0;
-    while i < max {
+    while i < min {
         println!("{position}. {total_loc} loc in {file_name}",
             position = (i + 1),
             total_loc = counters[i].total_loc,
