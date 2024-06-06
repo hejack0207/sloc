@@ -2,6 +2,7 @@ use files::{read_file};
 
 pub struct Counter{
     pub file: String,
+    pub file_type: String,
     pub total_loc: u64,
     pub empty_loc: u64
 }
@@ -94,6 +95,7 @@ fn get_loc(file: String, src_txt: String) -> Counter {
 
     Counter {
         file: file,
+        file_type: "".to_string(),
         total_loc: total_loc,
         empty_loc: empty_loc
     }

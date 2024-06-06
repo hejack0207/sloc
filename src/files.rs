@@ -15,6 +15,34 @@ pub fn get_files(folder: &str, files: &mut Vec<String>) {
     }
 }
 
+use std::process::Command;
+
+/// A function to determine the file type of a given file path.
+///
+/// # Arguments
+///
+/// * `file_name` - A reference to the file name as a string.
+///
+/// # Returns
+///
+/// An `Option<String>` containing the file type if successful, or `None` otherwise.
+pub fn get_file_type(file_name: &str) -> Option<String> {
+    let mut command = Command::new("file");
+    command.arg(file_name);
+
+    match command.output() {
+        Ok(output) => {
+            let output_bytes = output.stdout;
+            if let Ok(file_type) = String::from_utf8(output_bytes) {
+                Some(file_type.lines().next()?.to_owned())
+            } else {
+                None
+            }
+        }
+        Err(_) => None, // Error handling not shown for simplicity
+    }
+}
+
 pub fn read_file(file_name: &str) -> Option<String> {
     let path = Path::new(&file_name);
     if let Ok(mut file) = File::open(&path) {
