@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::fs::{File, read_dir};
 use std::io::Read;
+use std::sync::mpsc::Sender;
 
 pub fn get_files(folder: &str, files: &mut Vec<String>) {
     if let Ok(paths) = read_dir(&Path::new(&folder)) {
@@ -11,6 +12,19 @@ pub fn get_files(folder: &str, files: &mut Vec<String>) {
             }
 
             get_files(&file, files);
+        }
+    }
+}
+
+pub fn list_files(folder: String, txs: &Vec<Sender<String>>) {
+    if let Ok(paths) = read_dir(&Path::new(&folder)) {
+        for path in paths {
+            let file = get_path(path.unwrap().path());
+            if is_src(&file){
+                let _ = txs.get(0).expect("").send(file);
+            }else{
+                list_files(file, txs);
+            }
         }
     }
 }
@@ -28,7 +42,7 @@ use std::process::Command;
 /// An `Option<String>` containing the file type if successful, or `None` otherwise.
 pub fn get_file_type(file_name: &str) -> Option<String> {
     let mut command = Command::new("file");
-    command.arg(file_name);
+    command.args([file_name]);
 
     match command.output() {
         Ok(output) => {

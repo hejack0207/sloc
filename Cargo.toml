@@ -12,5 +12,6 @@ description = "source lines of count"
 [dependencies]
 clap = "2.20.5"
 num-format = "0.4.0"
+num_cpus = "1.16.0"
 serde = "*"
 toml = "*"

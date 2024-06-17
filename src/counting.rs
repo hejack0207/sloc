@@ -1,4 +1,5 @@
 use files::{read_file};
+use std::sync::mpsc::Receiver;
 
 pub struct Counter{
     pub file: String,
@@ -27,6 +28,16 @@ pub fn get_counters(files: Vec<String>) -> Vec<Counter> {
     counters.sort_by(|a, b| b.total_loc.cmp(&a.total_loc));
 
     counters
+}
+
+pub fn count_lines(files: Receiver<String>) -> Vec<Counter>{
+    let mut vec = Vec::new();
+    for file in files {
+        if let Some(c) = get_file_loc(&file) {
+            vec.push(c);
+        }
+    }
+    vec
 }
 
 pub fn get_stats(counters: &Vec<Counter>) -> Stats {
