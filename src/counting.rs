@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 use files::read_file;
-=======
-use files::{read_file};
 use std::sync::mpsc::Receiver;
->>>>>>> 709e7d4eed423365a4649e7963f1ffd14378eea8
 
 pub struct Counter{
     pub file: String,

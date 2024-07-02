@@ -1,22 +1,12 @@
 extern crate clap;
-extern crate num_cpus;
-extern crate num_format;
 extern crate sloc;
+extern crate num_format;
 
 use clap::{Arg,App};
-use num_format::{Locale, ToFormattedString};
-use std::sync::mpsc::channel;
-use std::thread;
-use std::sync::{Mutex, Arc};
-
-// mod files;
-// mod counting;
-
 use std::cmp;
+use num_format::{Locale, ToFormattedString};
 
-use sloc::files::list_files;
-use sloc::counting::{Stats, Counter, get_counters, get_stats};
-use sloc::counting::count_lines;
+use sloc::{Stats, Counter};
 
 fn main() {
     println!("Source lines of code program...");
@@ -53,34 +43,7 @@ fn main() {
         println!("directory:{}",dir);
     }
 
-    let num_cores = num_cpus::get();
-    println!("number of cores: {}", num_cores);
-
-    let mut txs = Vec::new();
-    let counters = Arc::new(Mutex::new(Vec::new()));
-    let mut c = num_cores;
-    while c > 0 {
-        let ch = channel();
-        txs.push(ch.0);
-        // rxs.push(ch.1);
-        let rx = ch.1;
-        let counters = Arc::clone(&counters);
-        thread::spawn(move ||{
-            let mut counters = counters.lock().unwrap();
-            let counter = count_lines(rx);
-            counters.push(counter);
-        });
-        c -= 1;
-    }
-
-    let mut files: Vec<String> = Vec::new();
-    thread::spawn(move ||{
-        list_files(directory,&txs);
-    });
-    // get_files(directory, &mut files);
-    let counters = get_counters(files);
-    let stats = get_stats(&counters);
-
+    let (counters, stats) = sloc::sloc(directory);
     if ! onlysummary {
         if let Some(num_str) = matches.value_of("num"){
             if let Ok(num) = num_str.parse::<usize>() {

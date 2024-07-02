@@ -16,9 +16,6 @@ pub fn get_files(folder: &str, files: &mut Vec<String>) {
     }
 }
 
-<<<<<<< HEAD
-pub(crate) fn read_file(file_name: &str) -> Option<String> {
-=======
 pub fn list_files(folder: String, txs: &Vec<Sender<String>>) {
     if let Ok(paths) = read_dir(&Path::new(&folder)) {
         for path in paths {
@@ -60,8 +57,7 @@ pub fn get_file_type(file_name: &str) -> Option<String> {
     }
 }
 
-pub fn read_file(file_name: &str) -> Option<String> {
->>>>>>> 709e7d4eed423365a4649e7963f1ffd14378eea8
+pub(crate) fn read_file(file_name: &str) -> Option<String> {
     let path = Path::new(&file_name);
     if let Ok(mut file) = File::open(&path) {
         let mut filecontent = String::new();
