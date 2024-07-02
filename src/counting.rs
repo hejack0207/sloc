@@ -14,7 +14,7 @@ pub struct Stats{
     pub empty_loc: u64
 }
 
-pub fn get_counters(files: Vec<String>) -> Vec<Counter> {
+pub fn get_counters(files: &Vec<String>) -> Vec<Counter> {
     let mut counters: Vec<_> = files.iter()
         .map(|x| get_file_loc(&x))
         // .filter(|x| match *x {
