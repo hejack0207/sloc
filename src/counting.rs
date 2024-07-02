@@ -1,4 +1,4 @@
-use files::{read_file};
+use files::read_file;
 
 pub struct Counter{
     pub file: String,
