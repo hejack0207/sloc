@@ -1,16 +1,22 @@
 extern crate clap;
-use clap::{Arg,App};
+extern crate num_cpus;
 extern crate num_format;
-use num_format::{Locale, ToFormattedString};
-
 extern crate sloc;
+
+use clap::{Arg,App};
+use num_format::{Locale, ToFormattedString};
+use std::sync::mpsc::channel;
+use std::thread;
+use std::sync::{Mutex, Arc};
+
 // mod files;
 // mod counting;
 
 use std::cmp;
 
-use sloc::files::get_files;
+use sloc::files::list_files;
 use sloc::counting::{Stats, Counter, get_counters, get_stats};
+use sloc::counting::count_lines;
 
 fn main() {
     println!("Source lines of code program...");
@@ -41,14 +47,37 @@ fn main() {
 
     let onlysummary = matches.is_present("summary");
     // println!("summary flag:{}",onlysummary);
-    let mut directory = ".";
+    let mut directory = String::new();
     if let Some(ref dir) = matches.value_of("directory") {
-        directory = dir;
+        directory = dir.to_string();
         println!("directory:{}",dir);
     }
 
+    let num_cores = num_cpus::get();
+    println!("number of cores: {}", num_cores);
+
+    let mut txs = Vec::new();
+    let counters = Arc::new(Mutex::new(Vec::new()));
+    let mut c = num_cores;
+    while c > 0 {
+        let ch = channel();
+        txs.push(ch.0);
+        // rxs.push(ch.1);
+        let rx = ch.1;
+        let counters = Arc::clone(&counters);
+        thread::spawn(move ||{
+            let mut counters = counters.lock().unwrap();
+            let counter = count_lines(rx);
+            counters.push(counter);
+        });
+        c -= 1;
+    }
+
     let mut files: Vec<String> = Vec::new();
-    get_files(directory, &mut files);
+    thread::spawn(move ||{
+        list_files(directory,&txs);
+    });
+    // get_files(directory, &mut files);
     let counters = get_counters(files);
     let stats = get_stats(&counters);
 
@@ -76,14 +105,14 @@ fn show_counters(counters: &Vec<Counter>, num: usize) {
     let len = counters.len();
 
     // let max = if len < num { len } else { num };
-    let max = cmp::max(len, num);
+    let min = cmp::min(len, num);
 
-    if max > 0 {
-        println!("{} biggest files:", max);
+    if min > 0 {
+        println!("{} biggest files:", min);
     }
 
     let mut i = 0;
-    while i < max {
+    while i < min {
         println!("{position}. {total_loc} loc in {file_name}",
             position = (i + 1),
             total_loc = counters[i].total_loc,

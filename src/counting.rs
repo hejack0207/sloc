@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 use files::read_file;
+=======
+use files::{read_file};
+use std::sync::mpsc::Receiver;
+>>>>>>> 709e7d4eed423365a4649e7963f1ffd14378eea8
 
 pub struct Counter{
     pub file: String,
+    pub file_type: String,
     pub total_loc: u64,
     pub empty_loc: u64
 }
@@ -26,6 +32,16 @@ pub fn get_counters(files: Vec<String>) -> Vec<Counter> {
     counters.sort_by(|a, b| b.total_loc.cmp(&a.total_loc));
 
     counters
+}
+
+pub fn count_lines(files: Receiver<String>) -> Vec<Counter>{
+    let mut vec = Vec::new();
+    for file in files {
+        if let Some(c) = get_file_loc(&file) {
+            vec.push(c);
+        }
+    }
+    vec
 }
 
 pub fn get_stats(counters: &Vec<Counter>) -> Stats {
@@ -94,6 +110,7 @@ fn get_loc(file: String, src_txt: String) -> Counter {
 
     Counter {
         file: file,
+        file_type: "".to_string(),
         total_loc: total_loc,
         empty_loc: empty_loc
     }
