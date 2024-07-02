@@ -41,9 +41,12 @@ fn main() {
     if let Some(ref dir) = matches.value_of("directory") {
         directory = dir.to_string();
         println!("directory:{}",dir);
+    }else{
+        directory = String::from(".");
     }
 
     let (counters, stats) = sloc::sloc(directory);
+
     if ! onlysummary {
         if let Some(num_str) = matches.value_of("num"){
             if let Ok(num) = num_str.parse::<usize>() {
