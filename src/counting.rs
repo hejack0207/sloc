@@ -57,13 +57,13 @@ pub fn get_stats(counters: &Vec<Counter>) -> Stats {
     stats
 }
 
-pub fn add_stats(stats: &mut Stats, counters: &Vec<Counter>) {
-    for counter in counters {
-        stats.files_count += 1;
-        stats.total_loc += counter.total_loc;
-        stats.empty_loc += counter.empty_loc;
-    }
-}
+// pub fn add_stats(stats: &mut Stats, counters: &Vec<Counter>) {
+//     for counter in counters {
+//         stats.files_count += 1;
+//         stats.total_loc += counter.total_loc;
+//         stats.empty_loc += counter.empty_loc;
+//     }
+// }
 
 fn is_new_line_char(c: char) -> bool {
     c == '\n'

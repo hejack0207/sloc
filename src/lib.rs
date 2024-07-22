@@ -13,7 +13,6 @@ use crate::counting::{get_counters, get_stats};
 use crate::counting::count_lines;
 
 pub fn sloc(directory: String, mt: bool) -> (Vec<Counter>, Stats){
-    let mut counters = vec![];
     if mt {
         let num_cores = num_cpus::get();
         println!("number of cores: {}", num_cores);
@@ -47,13 +46,17 @@ pub fn sloc(directory: String, mt: bool) -> (Vec<Counter>, Stats){
             let _ = h.join();
         }
         let counters_list = counters_list.lock().unwrap();
-        counters = counters_list.concat();
+
+        let counters = counters_list.concat();
+        let stats = get_stats(&counters);
+        return (counters, stats)
     }else{
         println!("single thread mode");
         let mut files: Vec<String> = Vec::new();
         get_files(&directory, &mut files);
-        counters = get_counters(&files);
+
+        let counters = get_counters(&files);
+        let stats = get_stats(&counters);
+        return (counters, stats)
     }
-    let stats = get_stats(&counters);
-    return (counters, stats)
 }

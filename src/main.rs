@@ -42,12 +42,10 @@ fn main() {
 
     let onlysummary = matches.is_present("summary");
 
-    let mut directory = String::new();
+    let mut directory = String::from(".");
     if let Some(ref dir) = matches.value_of("directory") {
         directory = dir.to_string();
         println!("directory:{}",dir);
-    }else{
-        directory = String::from(".");
     }
 
     let (counters, stats) = sloc::sloc(directory, matches.is_present("multithread"));
