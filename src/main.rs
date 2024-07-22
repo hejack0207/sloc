@@ -1,3 +1,4 @@
+#[macro_use] extern crate debug_here;
 extern crate clap;
 extern crate sloc;
 extern crate num_format;
@@ -9,11 +10,15 @@ use num_format::{Locale, ToFormattedString};
 use sloc::{Stats, Counter};
 
 fn main() {
-    println!("Source lines of code program...");
     let matches = App::new("Source lines of code")
         .version("1.0")
         .author("hejack0207 <hejack0207@sina.com>")
         .about("Source lines of codes program")
+        .arg(Arg::with_name("multithread")
+             .short("m")
+             .long("multithread")
+             .help("enable multi thread mode")
+             .takes_value(false))
         .arg(Arg::with_name("summary")
              .short("s")
              .long("summary")
@@ -36,16 +41,14 @@ fn main() {
         .get_matches();
 
     let onlysummary = matches.is_present("summary");
-    // println!("summary flag:{}",onlysummary);
-    let mut directory = String::new();
+
+    let mut directory = String::from(".");
     if let Some(ref dir) = matches.value_of("directory") {
         directory = dir.to_string();
         println!("directory:{}",dir);
-    }else{
-        directory = String::from(".");
     }
 
-    let (counters, stats) = sloc::sloc(directory);
+    let (counters, stats) = sloc::sloc(directory, matches.is_present("multithread"));
 
     if ! onlysummary {
         if let Some(num_str) = matches.value_of("num"){

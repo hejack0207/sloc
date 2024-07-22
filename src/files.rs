@@ -1,3 +1,6 @@
+extern crate rand;
+use self::rand::Rng;
+
 use std::path::{Path, PathBuf};
 use std::fs::{File, read_dir};
 use std::io::Read;
@@ -16,12 +19,19 @@ pub fn get_files(folder: &str, files: &mut Vec<String>) {
     }
 }
 
+fn generate_random(n: u32) ->u32 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(0..n)
+}
+
 pub fn list_files(folder: String, txs: &Vec<Sender<String>>) {
+    let len :u32 = txs.len() as u32;
     if let Ok(paths) = read_dir(&Path::new(&folder)) {
         for path in paths {
             let file = get_path(path.unwrap().path());
             if is_src(&file){
-                let _ = txs.get(0).expect("").send(file);
+                let i = generate_random(len);
+                let _ = txs.get(i as usize).expect(&format!("index {i} should be in range 0..{len}")).send(file);
             }else{
                 list_files(file, txs);
             }
