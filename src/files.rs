@@ -67,7 +67,7 @@ pub fn get_file_type(file_name: &str) -> Option<String> {
     }
 }
 
-pub fn read_file(file_name: &str) -> Option<String> {
+pub(crate) fn read_file(file_name: &str) -> Option<String> {
     let path = Path::new(&file_name);
     if let Ok(mut file) = File::open(&path) {
         let mut filecontent = String::new();
@@ -80,7 +80,7 @@ pub fn read_file(file_name: &str) -> Option<String> {
     }
 }
 
-pub static EXTS: &'static [&'static str] = &[".rs", "hs",
+static EXTS: &'static [&'static str] = &[".rs", "hs",
                                              ".go", ".rb", ".rbw",
                                              ".java", ".scala", ".clj",
                                              ".js", ".cljs",

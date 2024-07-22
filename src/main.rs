@@ -1,23 +1,13 @@
 #[macro_use] extern crate debug_here;
 extern crate clap;
-extern crate num_cpus;
-extern crate num_format;
 extern crate sloc;
+extern crate num_format;
 
 use clap::{Arg,App};
-use num_format::{Locale, ToFormattedString};
-use std::sync::mpsc::channel;
-use std::thread;
-use std::sync::{Mutex, Arc};
-
-// mod files;
-// mod counting;
-
 use std::cmp;
+use num_format::{Locale, ToFormattedString};
 
-use sloc::files::{get_files,list_files};
-use sloc::counting::{Stats, Counter, get_counters, get_stats, add_stats};
-use sloc::counting::count_lines;
+use sloc::{Stats, Counter};
 
 fn main() {
     let matches = App::new("Source lines of code")
@@ -51,55 +41,16 @@ fn main() {
         .get_matches();
 
     let onlysummary = matches.is_present("summary");
-    // println!("summary flag:{}",onlysummary);
+
     let mut directory = String::new();
     if let Some(ref dir) = matches.value_of("directory") {
         directory = dir.to_string();
-        println!("directory: {}",dir);
-    }
-
-    let mut counters = vec![];
-    if matches.is_present("multithread") {
-        let num_cores = num_cpus::get();
-        println!("number of cores: {}", num_cores);
-
-        let mut txs = Vec::new();
-        let counters_list = Arc::new(Mutex::new(Vec::new()));
-
-        let mut c = num_cores;
-        let mut handlers = Vec::new();
-        while c > 0 {
-            let ch = channel();
-            txs.push(ch.0);
-            let rx = ch.1;
-            let counters_list = Arc::clone(&counters_list);
-            let h = thread::spawn(move ||{
-                let counters = count_lines(rx);
-                let mut counters_list = counters_list.lock().unwrap();
-                counters_list.push(counters);
-            });
-            handlers.push(h);
-            c -= 1;
-        }
-
-        let h = thread::spawn(move ||{
-            list_files(directory,&txs);
-        });
-
-        handlers.push(h);
-
-        for h in handlers {
-            let _ = h.join();
-        }
-        let counters_list = counters_list.lock().unwrap();
-        counters = counters_list.concat();
+        println!("directory:{}",dir);
     }else{
-        println!("single thread mode");
-        let mut files: Vec<String> = Vec::new();
-        get_files(&directory, &mut files);
-        counters = get_counters(files);
+        directory = String::from(".");
     }
-    let stats = get_stats(&counters);
+
+    let (counters, stats) = sloc::sloc(directory, matches.is_present("multithread"));
 
     if ! onlysummary {
         if let Some(num_str) = matches.value_of("num"){
